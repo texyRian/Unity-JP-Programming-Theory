@@ -13,18 +13,6 @@ public class MyTree : MyPlant
         get { return "Tree"; }
     }
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
     public override void grow()
     {
         if (curGrowth < maxGrowth)
@@ -35,5 +23,17 @@ public class MyTree : MyPlant
         {
             Debug.Log("Can't grow further!");
         }
-    } 
+    }
+    
+    public void grow(int stages)
+    {
+        if (curGrowth + stages < maxGrowth)
+        {
+            curGrowth += stages;
+            transform.localPosition *= (stages * growthSpeed);
+        } else
+        {
+            Debug.Log("Can't grow that many stages!");
+        }
+    }
 }

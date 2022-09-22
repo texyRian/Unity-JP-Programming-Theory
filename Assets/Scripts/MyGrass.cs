@@ -13,18 +13,6 @@ public class MyGrass : MyPlant
         get { return "Grass"; }
     }
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
     public override void grow()
     {
         float seedlings = Random.Range(0, 5);

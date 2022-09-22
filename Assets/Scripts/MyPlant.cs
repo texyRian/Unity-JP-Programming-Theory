@@ -6,28 +6,21 @@ public abstract class MyPlant : MonoBehaviour
 {
     public abstract string CommonName { get; }
     [SerializeField]
-    protected Material m_decaying;
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    protected Material decaying;
 
     public abstract void grow();
     public void kill()
     {
         // set new color for all child-objects
+        foreach (Transform child in transform)
+        {
+            child.GetComponent<Renderer>().material = decaying;
+        }
+        /*
         for (int i = 0; i < gameObject.transform.childCount; i++)
         {
             gameObject.transform.GetChild(0).GetComponent<Renderer>().material = m_decaying;
-        }
+        }*/
         StartCoroutine(die(5));
     }
 
