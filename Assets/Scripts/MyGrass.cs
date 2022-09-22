@@ -6,7 +6,7 @@ public class MyGrass : MyPlant
 {
     [SerializeField]
     private GameObject grassPrefab;
-    private readonly float spawnRange;
+    private readonly float spawnRange = 2f;
 
     public override string CommonName
     {

@@ -4,9 +4,15 @@ using UnityEngine;
 
 public class MyTree : MyPlant
 {
-    private readonly float maxGrowth = 10;
-    private float curGrowth = 1;
-    private readonly float growthSpeed = 1.5f;
+    // maximum total size achievable as compared to prefab
+    private float maxGrowth;
+    private float curGrowth;
+
+    private void Start()
+    {
+        maxGrowth = Random.Range(1f, 4f);
+        curGrowth = (maxGrowth - 1) / 2;
+    }
 
     public override string CommonName
     {
@@ -15,25 +21,16 @@ public class MyTree : MyPlant
 
     public override void grow()
     {
-        if (curGrowth < maxGrowth)
-        {
-            curGrowth++;
-            transform.localScale *= growthSpeed;
-        } else
-        {
-            Debug.Log("Can't grow further!");
-        }
+        transform.localScale += Vector3.one * curGrowth;
+        curGrowth /= 2;
     }
     
-    public void grow(int stages)
+    // Deprecated
+    private void grow(int stages)
     {
-        if (curGrowth + stages < maxGrowth)
+        for (int i = 0; i < stages; i++)
         {
-            curGrowth += stages;
-            transform.localPosition *= (stages * growthSpeed);
-        } else
-        {
-            Debug.Log("Can't grow that many stages!");
+            grow();
         }
     }
 }
