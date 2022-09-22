@@ -65,8 +65,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1ea7eed07b8db464c974ae0e4bf8b850, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  decaying: {fileID: 0}
-  grassPrefab: {fileID: 0}
+  decaying: {fileID: 2100000, guid: aa417d3b6197b9d43a1cc52c4552a6df, type: 2}
+  grassPrefab: {fileID: 1815764228453712144}
 --- !u!1 &1833243551651446655
 GameObject:
   m_ObjectHideFlags: 0
