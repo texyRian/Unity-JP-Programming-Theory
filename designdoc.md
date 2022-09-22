@@ -12,12 +12,12 @@
         - float maxHeight
         + abstract grow (float cm)
         + die()
-    > flower
-        - string color
-        + bloom()
     > tree()
         + shedLeaves() //sheds all
         + shedLeaves(float percentage)
+    > flower
+        - string color
+        + bloom()
     > grass()
         + spread()
 ```
