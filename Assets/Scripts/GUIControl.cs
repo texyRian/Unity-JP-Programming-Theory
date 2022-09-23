@@ -1,10 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
-public class GUIControl : MonoBehaviour
+public class GUIControl : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
+    private GameObject curSpawnPlant;
     private GameObject curSelectedPlant;
+    private bool mouseOnGUI = false;
+
     // TODO: implement color selection
     [SerializeField]
     private Material curSelectedColor;
@@ -17,6 +22,12 @@ public class GUIControl : MonoBehaviour
     private GameObject flowerPrefab;
     [SerializeField]
     private GameObject grassPrefab;
+    [SerializeField]
+    private GameObject selectorPrefab;
+    [SerializeField]
+    private TMPro.TMP_InputField growStagesInput;
+    [SerializeField]
+    private GameObject plantPanel;
 
     //[SerializeField]
     //private Plane groundPlane;
@@ -42,65 +53,108 @@ public class GUIControl : MonoBehaviour
     // left mouse button for selecting existing plant
     private void leftClick()
     {
-        Ray ray = gameCamera.ScreenPointToRay(Input.mousePosition);
-        RaycastHit hit;
-        if (Physics.Raycast(ray, out hit))
+        if (!mouseOnGUI)
         {
-            MyPlant plant = hit.collider.GetComponentInParent<MyPlant>();
-            // Debug.Log(hit.collider.gameObject.name);
+            Ray ray = gameCamera.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hit;
+            if (Physics.Raycast(ray, out hit))
+            {
+                MyPlant plant = hit.collider.GetComponentInParent<MyPlant>();
+                GameObject selectedObject = hit.collider.gameObject;
+                // Debug.Log(hit.collider.gameObject.name);
 
-            if (plant != null)
-            {
-                // plant hit
-                // open gui 
-                Debug.Log("Plant hit!");
-                plant.grow();
-            } else
-            {
-                Debug.Log("No plant hit!");
-            }
+                if (plant != null)
+                {
+                    // plant hit
+                    // update selector location and scale
+                    updateSelector(selectedObject);
+                    curSelectedPlant = selectedObject;
+                    // open plant GUI
+
+                    plantPanel.SetActive(true);
+                    TMPro.TMP_Text selectedText = plantPanel.transform.GetChild(0).GetComponent<TMPro.TMP_Text>();
+                    selectedText.text = "Selected: " + curSelectedPlant.name.Replace("(Clone)","");
+
+                    if (selectedObject.name.StartsWith("Tree"))
+                    {
+                        plantPanel.transform.GetChild(3).gameObject.SetActive(true);
+                    }
+                    else
+                    {
+                        plantPanel.transform.GetChild(3).gameObject.SetActive(false);
+                    }
+                }
+                else
+                {
+                    // deselect
+                    // remove selector
+                    selectorPrefab.SetActive(false);
+                    curSelectedPlant = null;
+                    // close plant GUI
+                }
+            }      
         }
-        // get intersection with mouse ray and gameobject
     }
 
     // right mouse button for planting
     private void rightClick()
     {
-        Ray ray = gameCamera.ScreenPointToRay(Input.mousePosition);
-        RaycastHit hit;
-        if (Physics.Raycast(ray, out hit))
+        if (!mouseOnGUI)
         {
-            if (hit.collider.gameObject.name.Equals("Ground"))
+            Ray ray = gameCamera.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hit;
+            if (Physics.Raycast(ray, out hit))
             {
-                spawnPlant(hit.point);
+                if (hit.collider.gameObject.name.Equals("Ground"))
+                {
+                    spawnPlant(hit.point);
+                }
             }
         }
     }
 
+    private void updateSelector(GameObject selected)
+    {
+        if (selected.name.StartsWith("Tree"))
+        {
+            Vector3 newScale = new Vector3();
+            newScale.x = selected.transform.GetChild(0).localScale.x + 1;
+            newScale.y = 0.1f;
+            newScale.z = selected.transform.GetChild(0).localScale.z + 1;
+            selectorPrefab.transform.localScale = newScale;
+        }
+        else
+        {
+            selectorPrefab.transform.localScale = new Vector3(1, 0.1f, 1);
+        }
+        selectorPrefab.transform.position = selected.transform.position;
+        selectorPrefab.SetActive(true);
+    }
+
     public void selectTree()
     {
-        curSelectedPlant = treePrefab;
+        curSpawnPlant = treePrefab;
     }
 
     public void selectFlower()
     {
-        curSelectedPlant = flowerPrefab;
+        curSpawnPlant = flowerPrefab;
         // TODO: make color selection
     }
 
     public void selectGrass()
     {
-        curSelectedPlant = grassPrefab;
+        curSpawnPlant = grassPrefab;
     }
 
     private void spawnPlant(Vector3 spawnPoint)
     {
-        if (curSelectedPlant != null)
+        if (curSpawnPlant != null)
         {
-            GameObject instantiatedPlant = Instantiate(curSelectedPlant, spawnPoint, curSelectedPlant.transform.rotation);
+            GameObject instantiatedPlant = Instantiate(curSpawnPlant, spawnPoint, curSpawnPlant.transform.rotation);
 
             // change flower color if applicable
-            if (curSelectedPlant.name.Equals("Flower"))
+            if (curSpawnPlant.name.Equals("Flower"))
             {
                 foreach (Transform child in instantiatedPlant.transform)
                 {
@@ -111,5 +165,40 @@ public class GUIControl : MonoBehaviour
                 }
             }
         }
+    }
+
+    public void killPlant()
+    {
+        if (curSelectedPlant != null)
+        {
+            curSelectedPlant.GetComponent<MyPlant>().kill();
+        }
+    }
+
+    public void growPlant()
+    {
+        if (curSelectedPlant != null)
+        {
+            if (curSelectedPlant.name.StartsWith("Tree")) 
+            {
+                if (growStagesInput.text != null && growStagesInput.text != "")
+                {
+                    int stages = int.Parse(growStagesInput.text);
+                    curSelectedPlant.GetComponent<MyTree>().grow(stages);
+                    return;
+                }
+            }
+            curSelectedPlant.GetComponent<MyPlant>().grow();
+        }
+    }
+
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        mouseOnGUI = true;
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        mouseOnGUI = false;
     }
 }

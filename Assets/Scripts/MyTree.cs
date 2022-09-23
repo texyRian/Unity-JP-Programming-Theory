@@ -25,8 +25,7 @@ public class MyTree : MyPlant
         curGrowth /= 2;
     }
     
-    // Deprecated
-    private void grow(int stages)
+    public void grow(int stages)
     {
         for (int i = 0; i < stages; i++)
         {
